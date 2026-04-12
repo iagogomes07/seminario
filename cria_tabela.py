@@ -1,16 +1,22 @@
 import sqlite3
 
-con = sqlite3.connect('banco.db')
-cur = con.cursor()
+def criar_tabela():
+    conexao = sqlite3.connect("tarefas.db")
+    cursor = conexao.cursor()
 
-cur.execute('''
-    CREATE TABLE IF NOT EXISTS funcionario (
-        matricula INTEGER PRIMARY KEY,
-        nome TEXT NOT NULL
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS tarefas (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        titulo TEXT NOT NULL,
+        descricao TEXT,
+        data_entrega TEXT NOT NULL,
+        status TEXT NOT NULL
     )
-''')
+    """)
 
-con.commit()
-con.close()
+    conexao.commit()
+    conexao.close()
+    print("Banco de dados e tabela criados com sucesso!")
 
-print("Tabela criada com sucesso!")
+if __name__ == "__main__":
+    criar_tabela()

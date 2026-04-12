@@ -1,78 +1,118 @@
 import sqlite3
 
-# Função conectar
+DB_NAME = "tarefas.db"
+
+
 def conectar():
-    return sqlite3.connect("banco.db")
+    return sqlite3.connect(DB_NAME)
 
-# CREATE
-def inserir(matricula, nome):
-    con = conectar()
-    cur = con.cursor()
-    cur.execute("INSERT INTO funcionario VALUES (?, ?)", (matricula, nome))
-    con.commit()
-    con.close()
-    print("Inserido com sucesso!")
 
-# READ
+def inserir():
+    titulo = input("Título da tarefa: ")
+    descricao = input("Descrição: ")
+    data = input("Data de entrega (YYYY-MM-DD): ")
+
+    conn = conectar()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    INSERT INTO tarefas (titulo, descricao, data_entrega, status)
+    VALUES (?, ?, ?, ?)
+    """, (titulo, descricao, data, "pendente"))
+
+    conn.commit()
+    conn.close()
+
+    print("Tarefa adicionada com sucesso!\n")
+
+
 def listar():
-    con = conectar()
-    cur = con.cursor()
-    cur.execute("SELECT * FROM funcionario")
-    dados = cur.fetchall()
-    con.close()
-    return dados
+    conn = conectar()
+    cursor = conn.cursor()
 
-# UPDATE
-def atualizar(matricula, novo_nome):
-    con = conectar()
-    cur = con.cursor()
-    cur.execute("UPDATE funcionario SET nome = ? WHERE matricula = ?", (novo_nome, matricula))
-    con.commit()
-    con.close()
-    print("Atualizado com sucesso!")
+    cursor.execute("""
+    SELECT id, titulo, data_entrega, status FROM tarefas
+    ORDER BY data_entrega ASC
+    """)
 
-# DELETE
-def excluir(matricula):
-    con = conectar()
-    cur = con.cursor()
-    cur.execute("DELETE FROM funcionario WHERE matricula = ?", (matricula,))
-    con.commit()
-    con.close()
-    print("Excluído com sucesso!")
+    tarefas = cursor.fetchall()
+    conn.close()
+
+    if not tarefas:
+        print("Nenhuma tarefa cadastrada.\n")
+        return
+
+    print("\n=== LISTA DE TAREFAS ===")
+    for t in tarefas:
+        print(f"[{t[0]}] {t[1]} - {t[2]} ({t[3]})")
+    print()
 
 
-# MENU PARA TESTAR
-while True:
-    print("\n=== CRUD Funcionário ===")
-    print("1 - Inserir")
-    print("2 - Listar")
-    print("3 - Atualizar")
-    print("4 - Excluir")
-    print("5 - Sair")
+def atualizar():
+    id_tarefa = input("ID da tarefa: ")
 
-    op = input("Opção: ")
+    conn = conectar()
+    cursor = conn.cursor()
 
-    if op == "1":
-        m = int(input("Matrícula: "))
-        n = input("Nome: ")
-        inserir(m, n)
+    cursor.execute("SELECT status FROM tarefas WHERE id = ?", (id_tarefa,))
+    resultado = cursor.fetchone()
 
-    elif op == "2":
-        dados = listar()
-        for d in dados:
-            print(d)
+    if not resultado:
+        print("Tarefa não encontrada!\n")
+        conn.close()
+        return
 
-    elif op == "3":
-        m = int(input("Matrícula para atualizar: "))
-        n = input("Novo nome: ")
-        atualizar(m, n)
+    novo_status = "concluido" if resultado[0] == "pendente" else "pendente"
 
-    elif op == "4":
-        m = int(input("Matrícula para excluir: "))
-        excluir(m)
+    cursor.execute("""
+    UPDATE tarefas SET status = ? WHERE id = ?
+    """, (novo_status, id_tarefa))
 
-    elif op == "5":
-        break
+    conn.commit()
+    conn.close()
 
-    else:
-        print("Opção inválida.")
+    print(f"Status atualizado para: {novo_status}\n")
+
+
+def excluir():
+    id_tarefa = input("ID da tarefa para excluir: ")
+
+    conn = conectar()
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM tarefas WHERE id = ?", (id_tarefa,))
+
+    conn.commit()
+    conn.close()
+
+    print("Tarefa excluída!\n")
+
+
+def menu():
+    while True:
+        print("=== GERENCIADOR DE TAREFAS ===")
+        print("1 - Inserir")
+        print("2 - Listar")
+        print("3 - Atualizar status")
+        print("4 - Excluir")
+        print("5 - Sair")
+
+        opcao = input("Opção: ")
+
+        if opcao == "1":
+            inserir()
+        elif opcao == "2":
+            listar()
+        elif opcao == "3":
+            atualizar()
+        elif opcao == "4":
+            excluir()
+        elif opcao == "5":
+            print("Saindo...")
+            break
+        else:
+            print("Opção inválida!\n")
+
+
+if __name__ == "__main__":
+    menu()
