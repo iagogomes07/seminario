@@ -1,37 +1,38 @@
 # TaskCLI – Gerenciador de Tarefas Acadêmicas
 
-## Descrição do Problema
+## Problema
 
-Estudantes frequentemente enfrentam dificuldades para organizar tarefas acadêmicas, acompanhar prazos de entrega e controlar atividades concluídas. Isso pode gerar atrasos, acúmulo de tarefas e estresse.
+Estudantes frequentemente enfrentam dificuldades para organizar tarefas acadêmicas, acompanhar prazos e controlar atividades concluídas, o que pode gerar atrasos e acúmulo de atividades.
 
-## Proposta da Solução
+## Solução
 
-O TaskCLI é uma aplicação em linha de comando (CLI) que permite gerenciar tarefas de forma simples, possibilitando o cadastro, acompanhamento e atualização do status de atividades.
+O TaskCLI é uma aplicação em linha de comando que permite gerenciar tarefas de forma simples, possibilitando cadastro, listagem, atualização e exclusão de tarefas com persistência em banco de dados.
 
 ## Público-alvo
 
 - Estudantes
-- Pessoas que desejam organizar tarefas simples
-- Usuários que preferem ferramentas leves em terminal
+- Usuários que desejam organizar tarefas simples
+- Pessoas que preferem ferramentas em terminal
 
 ## Funcionalidades
 
-- Adicionar tarefa
+- Inserir tarefa
 - Listar tarefas em ordem cronológica
-- Marcar tarefa como concluída
-- Reabrir tarefa
+- Atualizar status (pendente/concluído)
 - Excluir tarefa
-- Persistência em banco SQLite
+- Armazenamento em SQLite
 
-## Tecnologias Utilizadas
+## Tecnologias
 
 - Python
 - SQLite
-- argparse
+- pytest
+- ruff
 
 ## Instalação
 
 ```bash
 git clone https://github.com/iagogomes07/seminario
 cd seminario
+pip install -r requirements.txt
 ```
