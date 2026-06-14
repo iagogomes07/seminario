@@ -6,33 +6,99 @@ Estudantes frequentemente enfrentam dificuldades para organizar tarefas acadêmi
 
 ## Solução
 
-O TaskCLI é uma aplicação em linha de comando que permite gerenciar tarefas de forma simples, possibilitando cadastro, listagem, atualização e exclusão de tarefas com persistência em banco de dados.
+O TaskCLI é uma aplicação em linha de comando desenvolvida em Python que permite gerenciar tarefas de forma simples e eficiente. O sistema possibilita o cadastro, listagem, atualização e exclusão de tarefas, utilizando um banco de dados em nuvem para garantir persistência e acesso confiável às informações.
 
 ## Público-alvo
 
-- Estudantes
-- Usuários que desejam organizar tarefas simples
-- Pessoas que preferem ferramentas em terminal
+* Estudantes
+* Usuários que desejam organizar tarefas simples
+* Pessoas que preferem ferramentas em terminal
 
 ## Funcionalidades
 
-- Inserir tarefa
-- Listar tarefas em ordem cronológica
-- Atualizar status (pendente/concluído)
-- Excluir tarefa
-- Armazenamento em SQLite
+* Inserir tarefa
+* Listar tarefas
+* Atualizar status (pendente/concluído)
+* Excluir tarefa
+* Persistência de dados em banco de dados na nuvem (Supabase)
+* Integração contínua com GitHub Actions
 
 ## Tecnologias
 
-- Python
-- SQLite
-- pytest
-- ruff
+* Python
+* Supabase (PostgreSQL em nuvem)
+* pytest
+* GitHub Actions
+* Ruff
+
+## Estrutura do Projeto
+
+```text
+seminario/
+├── app.py
+├── banco.py
+├── requirements.txt
+├── tests/
+└── .github/workflows/
+```
 
 ## Instalação
 
 ```bash
-git clone https://github.com/iagogomes07/seminario
+git clone https://github.com/iagogomes07/seminario.git
 cd seminario
 pip install -r requirements.txt
 ```
+
+## Configuração do Banco de Dados
+
+O projeto utiliza o Supabase como banco de dados em nuvem.
+
+Crie um arquivo `banco.py` contendo:
+
+```python
+from supabase import create_client
+
+SUPABASE_URL = "SUA_URL"
+SUPABASE_KEY = "SUA_CHAVE"
+
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+```
+
+Além disso, crie a tabela `tarefas` no Supabase com a seguinte estrutura:
+
+```sql
+CREATE TABLE tarefas (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    titulo TEXT NOT NULL,
+    descricao TEXT,
+    data_entrega DATE NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pendente'
+);
+```
+
+## Execução
+
+```bash
+python app.py
+```
+
+## Testes
+
+Para executar os testes automatizados:
+
+```bash
+pytest
+```
+
+## Integração Contínua
+
+O projeto utiliza GitHub Actions para execução automática dos testes a cada push ou Pull Request.
+
+## Autor
+
+**Iago Pereira**
+
+## Repositório
+
+https://github.com/iagogomes07/seminario
