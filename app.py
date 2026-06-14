@@ -1,91 +1,62 @@
-import sqlite3
-
-DB_NAME = "tarefas.db"
-
-
-def conectar():
-    return sqlite3.connect(DB_NAME)
-
+from banco import supabase
 
 def inserir():
-    titulo = input("Título da tarefa: ")
+    titulo = input("Título: ")
     descricao = input("Descrição: ")
-    data = input("Data de entrega (YYYY-MM-DD): ")
+    data_entrega = input("Data de entrega (AAAA-MM-DD): ")
 
-    conn = conectar()
-    cursor = conn.cursor()
+    supabase.table("tarefas").insert({
+        "titulo": titulo,
+        "descricao": descricao,
+        "data_entrega": data_entrega,
+        "status": "pendente"
+    }).execute()
 
-    cursor.execute("""
-    INSERT INTO tarefas (titulo, descricao, data_entrega, status)
-    VALUES (?, ?, ?, ?)
-    """, (titulo, descricao, data, "pendente"))
-
-    conn.commit()
-    conn.close()
-
-    print("Tarefa adicionada com sucesso!\n")
+    print("\nTarefa adicionada com sucesso!\n")
 
 
 def listar():
-    conn = conectar()
-    cursor = conn.cursor()
-
-    cursor.execute("""
-    SELECT id, titulo, data_entrega, status FROM tarefas
-    ORDER BY data_entrega ASC
-    """)
-
-    tarefas = cursor.fetchall()
-    conn.close()
+    resultado = supabase.table("tarefas").select("*").execute()
+    tarefas = resultado.data
 
     if not tarefas:
-        print("Nenhuma tarefa cadastrada.\n")
+        print("\nNenhuma tarefa cadastrada.\n")
         return
 
     print("\n=== LISTA DE TAREFAS ===")
-    for t in tarefas:
-        print(f"[{t[0]}] {t[1]} - {t[2]} ({t[3]})")
+
+    for tarefa in tarefas:
+        print(
+            f"ID: {tarefa['id']} | "
+            f"Título: {tarefa['titulo']} | "
+            f"Descrição: {tarefa['descricao']} | "
+            f"Data: {tarefa['data_entrega']} | "
+            f"Status: {tarefa['status']}"
+        )
+
     print()
 
 
 def atualizar():
     id_tarefa = input("ID da tarefa: ")
+    novo_status = input("Novo status: ")
 
-    conn = conectar()
-    cursor = conn.cursor()
+    supabase.table("tarefas").update({
+        "status": novo_status
+    }).eq("id", id_tarefa).execute()
 
-    cursor.execute("SELECT status FROM tarefas WHERE id = ?", (id_tarefa,))
-    resultado = cursor.fetchone()
-
-    if not resultado:
-        print("Tarefa não encontrada!\n")
-        conn.close()
-        return
-
-    novo_status = "concluido" if resultado[0] == "pendente" else "pendente"
-
-    cursor.execute("""
-    UPDATE tarefas SET status = ? WHERE id = ?
-    """, (novo_status, id_tarefa))
-
-    conn.commit()
-    conn.close()
-
-    print(f"Status atualizado para: {novo_status}\n")
+    print("\nStatus atualizado com sucesso!\n")
 
 
 def excluir():
-    id_tarefa = input("ID da tarefa para excluir: ")
+    id_tarefa = input("ID da tarefa: ")
 
-    conn = conectar()
-    cursor = conn.cursor()
+    supabase.table("tarefas").delete().eq(
+        "id",
+        id_tarefa
+    ).execute()
 
-    cursor.execute("DELETE FROM tarefas WHERE id = ?", (id_tarefa,))
-
-    conn.commit()
-    conn.close()
-
-    print("Tarefa excluída!\n")
+    print("\nTarefa excluída com sucesso!\n")
 
 
 def menu():
@@ -101,18 +72,22 @@ def menu():
 
         if opcao == "1":
             inserir()
+
         elif opcao == "2":
             listar()
+
         elif opcao == "3":
             atualizar()
+
         elif opcao == "4":
             excluir()
+
         elif opcao == "5":
             print("Saindo...")
             break
+
         else:
             print("Opção inválida!\n")
 
 
-if __name__ == "__main__":
-    menu()
+menu()
